@@ -14,17 +14,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MLB_Interface.cpp">
+    <ClCompile Include="src\MLB_Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="template.cpp">
+    <ClCompile Include="src\Modules\Template.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -76,7 +73,10 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="template.h">
+    <ClInclude Include="src\MLB_Interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Modules\Template.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

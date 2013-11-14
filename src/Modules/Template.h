@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 911 2011-11-11 11:11:11Z oconrad $
+ * Version $Id: template.cpp 911 2011-11-11 11:11:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                      template.h                       //
 //                                                       //
 //                 Copyright (C) 2011 by                 //
 //                     Olaf Conrad                       //
@@ -54,60 +54,39 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
+#ifndef HEADER_INCLUDED__Template_H
+#define HEADER_INCLUDED__Template_H
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include "../MLB_Interface.h"
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTemplate : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Möllers Library") );
-
-	case MLB_INFO_Author:
-		return( SG_T("K. S. M. Möllers (C) 2013") );
-
-	case MLB_INFO_Description:
-		return( _TL("Möllers's Super Awesome GIS Library.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Möllers") );
-	}
-}
+public:
+	CTemplate(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Template.h"
+	virtual bool				On_Execute		(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CTemplate );
-
-	case 11:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -117,8 +96,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Template_H
