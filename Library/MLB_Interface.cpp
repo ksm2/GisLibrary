@@ -92,20 +92,25 @@ CSG_String Get_Info(int i)
 //---------------------------------------------------------
 #include "../Modules/Template/Template.h"
 #include "../Modules/Exercise_01/Exercise_01.h"
+#include "../Modules/Exercise_02/Exercise_02.h"
+#include "../Modules/Exercise_03/Exercise_03.h"
 
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
 //---------------------------------------------------------
+#define addModule(i, name) case i: return new name;
 CSG_Module *Create_Module(int i)
 {
 	switch (i)
 	{
-	case  0:	return new CTemplate;
-	case  1:	return new CExercise_01;
+		addModule(0, CTemplate)
+		addModule(1, CExercise_01)
+		addModule(2, CExercise_02)
+		addModule(3, CExercise_03)
 
-	case 11:	return NULL;
-	default:	return MLB_INTERFACE_SKIP_MODULE;
+		case 11:	return NULL;
+		default:	return MLB_INTERFACE_SKIP_MODULE;
 	}
 }
 

@@ -9,7 +9,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Exercise_01.h                     //
+//                     Exercise_02.h                     //
 //                                                       //
 //                 Copyright (C) 2013 by                 //
 //            Konstantin Simon Maria Möllers             //
@@ -46,8 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Exercise_01_H
-#define HEADER_INCLUDED__Exercise_01_H
+#ifndef HEADER_INCLUDED__Exercise_02_H
+#define HEADER_INCLUDED__Exercise_02_H
 
 //---------------------------------------------------------
 #include "../../Library/MLB_Interface.h"
@@ -55,10 +55,10 @@
 //---------------------------------------------------------
 // The Template Module class.
 //---------------------------------------------------------
-class CExercise_01 : public CSG_Module_Grid
+class CExercise_02 : public CSG_Module_Grid
 {
 public:
-	CExercise_01(void);
+	CExercise_02(void);
 
 protected:
 	virtual bool On_Execute(void);
@@ -66,7 +66,8 @@ protected:
 private:
 	void Init_Meta_Info(void);
 	void Init_Parameters(void);
+	double Get_Value_For_Type(int, double, double);
 };
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Exercise_01_H
+#endif // #ifndef HEADER_INCLUDED__Exercise_02_H

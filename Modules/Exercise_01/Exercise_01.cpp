@@ -53,25 +53,8 @@
 //---------------------------------------------------------
 CExercise_01::CExercise_01(void)
 {
-	Set_Name		(_TL("Exercise_01"));
-
-	Set_Author		("Konstantin Simon Maria Möllers (C) 2013");
-
-	Set_Description	(_TW(
-		"My own module description. Leik a Sir."
-	));
-
-	Parameters.Add_String(
-		NULL	, "TEXT"	, _TL("Text"),
-		_TL(""),
-		"Hello World"
-	);
-
-	Parameters.Add_Value(
-		NULL	, "VALUE"	, _TL("Value"),
-		_TL(""),
-		PARAMETER_TYPE_Double, M_PI
-	);
+	this->Init_Meta_Info();
+	this->Init_Parameters();
 }
 
 //---------------------------------------------------------
@@ -79,11 +62,40 @@ CExercise_01::CExercise_01(void)
 //---------------------------------------------------------
 bool CExercise_01::On_Execute(void)
 {
-	CSG_String	Text;
+	CSG_Grid *pInput	= Parameters("INPUT")->asGrid();
+	CSG_Grid *pCopy		= Parameters("COPY")->asGrid();
 
-	Text.Printf(SG_T("%s\n\n%s: %f"), Parameters("TEXT")->asString(), _TL("Value"), Parameters("VALUE")->asDouble());
+	pCopy->Assign(pInput);
 
-	Message_Dlg(Text);
+	return true;
+}
 
-	return( true );
+//---------------------------------------------------------
+// Initializes meta information to this module.
+//---------------------------------------------------------
+void CExercise_01::Init_Meta_Info(void)
+{
+	Set_Name(_TL("Exercise_01"));
+	Set_Author("Konstantin Simon Maria Möllers (C) 2013");
+	Set_Description(_TW("My own module description. Leik a Sir."));
+}
+
+//---------------------------------------------------------
+// Initializes the module parameters.
+//---------------------------------------------------------
+void CExercise_01::Init_Parameters(void)
+{
+	Parameters.Add_Grid(
+		NULL,
+		"INPUT",
+		_TL("Raster to be copied"),
+		_TL("The original raster, which will be copied."), PARAMETER_INPUT
+		);
+
+	Parameters.Add_Grid(
+		NULL,
+		"COPY",
+		_TL("This is the copy"),
+		_TL("The copied raster."), PARAMETER_OUTPUT
+		);
 }

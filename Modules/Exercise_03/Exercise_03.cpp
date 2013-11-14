@@ -9,7 +9,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Exercise_01.h                     //
+//                    Exercise_03.cpp                    //
 //                                                       //
 //                 Copyright (C) 2013 by                 //
 //            Konstantin Simon Maria Möllers             //
@@ -46,27 +46,79 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Exercise_01_H
-#define HEADER_INCLUDED__Exercise_01_H
+#include "Exercise_03.h"
 
 //---------------------------------------------------------
-#include "../../Library/MLB_Interface.h"
-
+// Creates the module.
 //---------------------------------------------------------
-// The Template Module class.
-//---------------------------------------------------------
-class CExercise_01 : public CSG_Module_Grid
+CExercise_03::CExercise_03(void)
 {
-public:
-	CExercise_01(void);
-
-protected:
-	virtual bool On_Execute(void);
-
-private:
-	void Init_Meta_Info(void);
-	void Init_Parameters(void);
-};
+	this->Init_Meta_Info();
+	this->Init_Parameters();
+}
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Exercise_01_H
+// Runs on module execution.
+//---------------------------------------------------------
+bool CExercise_03::On_Execute(void)
+{
+	CSG_Grid *grid, *result;
+
+	grid = Parameters("GRID")->asGrid();
+	result = Parameters("RESULT")->asGrid();
+
+	int size = Parameters("SIZE")->asInt();
+
+	for (int y = 0; y < grid->Get_NY() && Set_Progress(y); y++)
+	for (int x = 0; x < grid->Get_NX(); x++)
+	{
+		double value = 0;
+
+		for (int i = -size; i < size; i++)
+		for (int j = -size; j < size; j++) 
+		{
+			int myX = x - j;
+			int myY = y - i;
+
+			if (myX < 0)
+				myX = 0;
+			else if (myX >= grid->Get_NX())
+				myX = grid->Get_NX() - 1;
+
+			if (myY < 0)
+				myY = 0;
+			else if (myY >= grid->Get_NY())
+				myY = grid->Get_NY() - 1;
+		
+			value += grid->asDouble(myX, myY);
+		}
+
+		value /= size * size;
+
+		result->Set_Value(x, y, value);
+	}
+
+	result->Set_Name("Antialiased Map");
+			
+	return true;
+}
+
+//---------------------------------------------------------
+// Initializes meta information to this module.
+//---------------------------------------------------------
+void CExercise_03::Init_Meta_Info(void)
+{
+	Set_Name(_TL("Nachbarschaftsrenderer"));
+	Set_Author("Konstantin Simon Maria Möllers (C) 2013");
+	Set_Description(_TW("My own module description. Leik a Sir."));
+}
+
+//---------------------------------------------------------
+// Initializes the module parameters.
+//---------------------------------------------------------
+void CExercise_03::Init_Parameters(void)
+{
+	Parameters.Add_Grid(NULL, "GRID", "Grid", "...", PARAMETER_INPUT);
+	Parameters.Add_Value(NULL, "SIZE", "Größe der Umgebung", "...", PARAMETER_TYPE_Int, 3.0);
+	Parameters.Add_Grid(NULL, "RESULT", "Result", "...", PARAMETER_OUTPUT);
+}

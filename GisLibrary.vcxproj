@@ -308,6 +308,8 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="Modules\Exercise_01\Exercise_01.cpp" />
+    <ClCompile Include="Modules\Exercise_02\Exercise_02.cpp" />
+    <ClCompile Include="Modules\Exercise_03\Exercise_03.cpp" />
     <ClCompile Include="Modules\Template\Template.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -330,6 +332,8 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="Modules\Exercise_01\Exercise_01.h" />
+    <ClInclude Include="Modules\Exercise_02\Exercise_02.h" />
+    <ClInclude Include="Modules\Exercise_03\Exercise_03.h" />
     <ClInclude Include="Modules\Template\Template.h" />
   </ItemGroup>
   <ItemGroup>
