@@ -9,7 +9,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Template.cpp                      //
+//                     Exercise_01.h                     //
 //                                                       //
 //                 Copyright (C) 2013 by                 //
 //            Konstantin Simon Maria Möllers             //
@@ -46,44 +46,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Template.h"
+#ifndef HEADER_INCLUDED__Exercise_01_H
+#define HEADER_INCLUDED__Exercise_01_H
 
 //---------------------------------------------------------
-// Creates the Module.
+#include "../../Library/MLB_Interface.h"
+
 //---------------------------------------------------------
-CTemplate::CTemplate(void)
+// The Template Module class.
+//---------------------------------------------------------
+class CExercise_01 : public CSG_Module
 {
-	Set_Name		(_TL("Template"));
+public:
+	CExercise_01(void);
 
-	Set_Author		("Konstantin Simon Maria Möllers (C) 2013");
+protected:
+	virtual bool On_Execute(void);
 
-	Set_Description	(_TW(
-		"My own module description. Leik a Sir."
-	));
+private:
 
-	Parameters.Add_String(
-		NULL	, "TEXT"	, _TL("Text"),
-		_TL(""),
-		"Hello World"
-	);
-
-	Parameters.Add_Value(
-		NULL	, "VALUE"	, _TL("Value"),
-		_TL(""),
-		PARAMETER_TYPE_Double, M_PI
-	);
-}
+};
 
 //---------------------------------------------------------
-// Runs on module execution.
-//---------------------------------------------------------
-bool CTemplate::On_Execute(void)
-{
-	CSG_String	Text;
-
-	Text.Printf(SG_T("%s\n\n%s: %f"), Parameters("TEXT")->asString(), _TL("Value"), Parameters("VALUE")->asDouble());
-
-	Message_Dlg(Text);
-
-	return( true );
-}
+#endif // #ifndef HEADER_INCLUDED__Exercise_01_H

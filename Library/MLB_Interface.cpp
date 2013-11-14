@@ -91,6 +91,7 @@ CSG_String Get_Info(int i)
 // 3. Include the headers of your modules here...
 //---------------------------------------------------------
 #include "../Modules/Template/Template.h"
+#include "../Modules/Exercise_01/Exercise_01.h"
 
 
 //---------------------------------------------------------
@@ -98,12 +99,13 @@ CSG_String Get_Info(int i)
 //---------------------------------------------------------
 CSG_Module *Create_Module(int i)
 {
-	switch( i )
+	switch (i)
 	{
-	case  0:	return( new CTemplate );
+	case  0:	return new CTemplate;
+	case  1:	return new CExercise_01;
 
-	case 11:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	case 11:	return NULL;
+	default:	return MLB_INTERFACE_SKIP_MODULE;
 	}
 }
 

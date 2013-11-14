@@ -9,7 +9,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Template.cpp                      //
+//                    Exercise_01.cpp                    //
 //                                                       //
 //                 Copyright (C) 2013 by                 //
 //            Konstantin Simon Maria Möllers             //
@@ -46,14 +46,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Template.h"
+#include "Exercise_01.h"
 
 //---------------------------------------------------------
-// Creates the Module.
+// Creates the module.
 //---------------------------------------------------------
-CTemplate::CTemplate(void)
+CExercise_01::CExercise_01(void)
 {
-	Set_Name		(_TL("Template"));
+	Set_Name		(_TL("Exercise_01"));
 
 	Set_Author		("Konstantin Simon Maria Möllers (C) 2013");
 
@@ -77,7 +77,7 @@ CTemplate::CTemplate(void)
 //---------------------------------------------------------
 // Runs on module execution.
 //---------------------------------------------------------
-bool CTemplate::On_Execute(void)
+bool CExercise_01::On_Execute(void)
 {
 	CSG_String	Text;
 
