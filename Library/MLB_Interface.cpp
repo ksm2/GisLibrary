@@ -15,8 +15,8 @@
 //                                                       //
 //                   MLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2011 by                 //
-//                     Olaf Conrad                       //
+//                 Copyright (C) 2013 by                 //
+//            Konstantin Simon Maria Möllers             //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
