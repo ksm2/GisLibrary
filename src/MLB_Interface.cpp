@@ -75,10 +75,10 @@ CSG_String Get_Info(int i)
 		return( _TL("Möllers Library") );
 
 	case MLB_INFO_Author:
-		return( SG_T("K. S. M. Möllers (C) 2013") );
+		return( SG_T("Konstantin Simon Maria Möllers (C) 2013") );
 
 	case MLB_INFO_Description:
-		return( _TL("Möllers's Super Awesome GIS Library.") );
+		return( _TL("Möllers's super awesome GIS Library.") );
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );

@@ -71,9 +71,9 @@
 //---------------------------------------------------------
 CTemplate::CTemplate(void)
 {
-	Set_Name		(_TL("Module on Steroids"));
+	Set_Name		(_TL("Template"));
 
-	Set_Author		("K. S. M. Möllers (c) 2013");
+	Set_Author		("Konstantin Simon Maria Möllers (C) 2013");
 
 	Set_Description	(_TW(
 		"My own module description. Leik a Sir."
