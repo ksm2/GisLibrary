@@ -95,6 +95,7 @@ CSG_String Get_Info(int i)
 #include "../Modules/Exercise_02/Exercise_02.h"
 #include "../Modules/Exercise_03/Exercise_03.h"
 #include "../Modules/Exercise_04/Exercise_04.h"
+#include "../Modules/Mandelbrot/Mandelbrot.h"
 
 
 //---------------------------------------------------------
@@ -110,6 +111,7 @@ CSG_Module *Create_Module(int i)
 		addModule(2, CExercise_02)
 		addModule(3, CExercise_03)
 		addModule(4, CExercise_04)
+		addModule(5, CMandelbrot)
 
 		case 11:	return NULL;
 		default:	return MLB_INTERFACE_SKIP_MODULE;

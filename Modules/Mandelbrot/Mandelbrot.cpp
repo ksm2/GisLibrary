@@ -9,7 +9,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    Exercise_03.cpp                    //
+//                    Mandelbrot.cpp                     //
 //                                                       //
 //                 Copyright (C) 2013 by                 //
 //            Konstantin Simon Maria Möllers             //
@@ -46,12 +46,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Exercise_03.h"
+#include "Mandelbrot.h"
 
 //---------------------------------------------------------
 // Creates the module.
 //---------------------------------------------------------
-CExercise_03::CExercise_03(void)
+CMandelbrot::CMandelbrot(void)
 {
 	this->Init_Meta_Info();
 	this->Init_Parameters();
@@ -60,45 +60,14 @@ CExercise_03::CExercise_03(void)
 //---------------------------------------------------------
 // Runs on module execution.
 //---------------------------------------------------------
-bool CExercise_03::On_Execute(void)
+bool CMandelbrot::On_Execute(void)
 {
-	CSG_Grid *grid, *result;
-
-	grid = Parameters("GRID")->asGrid();
+	CSG_Grid *result;
 	result = Parameters("RESULT")->asGrid();
 
-	int size = Parameters("SIZE")->asInt();
+	Draw_Mandelbrot(result);
 
-	for (int y = 0; y < grid->Get_NY() && Set_Progress(y); y++)
-	for (int x = 0; x < grid->Get_NX(); x++)
-	{
-		double value = 0;
-
-		for (int i = -size; i < size; i++)
-		for (int j = -size; j < size; j++) 
-		{
-			int myX = x - j;
-			int myY = y - i;
-
-			if (myX < 0)
-				myX = 0;
-			else if (myX >= grid->Get_NX())
-				myX = grid->Get_NX() - 1;
-
-			if (myY < 0)
-				myY = 0;
-			else if (myY >= grid->Get_NY())
-				myY = grid->Get_NY() - 1;
-		
-			value += grid->asDouble(myX, myY);
-		}
-
-		value /= size * size;
-
-		result->Set_Value(x, y, value);
-	}
-
-	result->Set_Name("Antialiased Map");
+	result->Set_Name("Mandelbrot Fraktal");
 			
 	return true;
 }
@@ -106,19 +75,64 @@ bool CExercise_03::On_Execute(void)
 //---------------------------------------------------------
 // Initializes meta information to this module.
 //---------------------------------------------------------
-void CExercise_03::Init_Meta_Info(void)
+void CMandelbrot::Init_Meta_Info(void)
 {
-	Set_Name(_TL("Nachbarschaftsrenderer"));
+	Set_Name(_TL("Mandelbrot-Fraktal"));
 	Set_Author("Konstantin Simon Maria Möllers (C) 2013");
-	Set_Description(_TW("My own module description. Leik a Sir."));
+	Set_Description(_TW("Das Apfelmännchen."));
 }
 
 //---------------------------------------------------------
 // Initializes the module parameters.
 //---------------------------------------------------------
-void CExercise_03::Init_Parameters(void)
+void CMandelbrot::Init_Parameters(void)
 {
-	Parameters.Add_Grid(NULL, "GRID", "Grid", "...", PARAMETER_INPUT);
-	Parameters.Add_Value(NULL, "SIZE", "Größe der Umgebung", "...", PARAMETER_TYPE_Int, 3.0);
 	Parameters.Add_Grid(NULL, "RESULT", "Result", "...", PARAMETER_OUTPUT);
+}
+
+//---------------------------------------------------------
+// The Mandelbrot algorithm.
+//---------------------------------------------------------
+void CMandelbrot::Draw_Mandelbrot(CSG_Grid *grid)
+{
+	int centerX, centerY;
+	double scale;
+
+	centerX = grid->Get_NX() / 2;
+	centerY = grid->Get_NY() / 2;
+
+	scale = grid->Get_NY() * 0.4;
+
+	for (int y = 0; y < grid->Get_NY() && Set_Progress(y); y++)
+	{
+		for (int x = 0; x < grid->Get_NX(); x++)
+		{
+			int iterations = 0;
+			double re = 0;
+			double im = 0;
+			double xre = (x - centerX) / scale - .4;
+			double yim = (y - centerY) / scale;
+			do
+			{
+				double newRe, newIm;
+				newRe = re * re - im * im + xre;
+				newIm = 2 * re * im + yim;
+
+				re = newRe;
+				im = newIm;
+
+				iterations++;
+			} while (iterations < 500 && In_Circle(re, im));
+
+			grid->Set_Value(x, y, iterations);
+		}
+	}
+}
+
+//---------------------------------------------------------
+// Finds out, if x and y are in the circle.
+//---------------------------------------------------------
+bool CMandelbrot::In_Circle(double re, int im)
+{
+	return re * re + im * im <= 4;
 }

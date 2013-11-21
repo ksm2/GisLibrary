@@ -9,7 +9,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Exercise_03.h                     //
+//                     Mandelbrot.h                      //
 //                                                       //
 //                 Copyright (C) 2013 by                 //
 //            Konstantin Simon Maria Möllers             //
@@ -46,8 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Exercise_03_H
-#define HEADER_INCLUDED__Exercise_03_H
+#ifndef HEADER_INCLUDED__Mandelbrot_H
+#define HEADER_INCLUDED__Mandelbrot_H
 
 //---------------------------------------------------------
 #include "../../Library/MLB_Interface.h"
@@ -55,10 +55,10 @@
 //---------------------------------------------------------
 // The Template Module class.
 //---------------------------------------------------------
-class CExercise_03 : public CSG_Module_Grid
+class CMandelbrot : public CSG_Module_Grid
 {
 public:
-	CExercise_03(void);
+	CMandelbrot(void);
 
 protected:
 	virtual bool On_Execute(void);
@@ -66,7 +66,9 @@ protected:
 private:
 	void Init_Meta_Info(void);
 	void Init_Parameters(void);
+	void Draw_Mandelbrot(CSG_Grid *grid);
+	bool In_Circle(double re, int im);
 };
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Exercise_03_H
+#endif // #ifndef HEADER_INCLUDED__Mandelbrot_H
