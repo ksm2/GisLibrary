@@ -69,10 +69,14 @@ bool CExercise_04::On_Execute(void)
 	result = Parameters("RESULT")->asGrid();
 
 	radius = Parameters("SIZE")->asInt();
+	CSG_Parameter_Choice *type = Parameters("TYPE")->asChoice();
 
 	// Reserve memory for the matrix
 	double *gaussMatrix = (double *) malloc(sizeof(double) * (4 * radius * radius + 4 * radius + 1));
-	Calc_Gauss_Matrix(gaussMatrix);
+	if (type->asInt() == 0)
+		Calc_Sqr_Matrix(gaussMatrix);
+	else
+		Calc_Gauss_Matrix(gaussMatrix);
 
 	for (int y = 0; y < inputGrid->Get_NY() && Set_Progress(y); y++)
 	{
@@ -95,7 +99,7 @@ bool CExercise_04::On_Execute(void)
 //---------------------------------------------------------
 void CExercise_04::Init_Meta_Info(void)
 {
-	Set_Name(_TL("Gaußscher Weichzeichner"));
+	Set_Name(_TL("Weichzeichner"));
 	Set_Author("Konstantin Simon Maria Möllers (C) 2013");
 	Set_Description(_TW("Calculates the gaussian map."));
 }
@@ -107,6 +111,7 @@ void CExercise_04::Init_Parameters(void)
 {
 	Parameters.Add_Grid(NULL, "GRID", "Grid", "...", PARAMETER_INPUT);
 	Parameters.Add_Value(NULL, "SIZE", "Größe der Umgebung", "...", PARAMETER_TYPE_Int, 3.0);
+	Parameters.Add_Choice(NULL, "TYPE", "Art der Berechnung", "...", "Quadrat|Gauß");
 	Parameters.Add_Grid(NULL, "RESULT", "Result", "...", PARAMETER_OUTPUT);
 }
 
@@ -176,5 +181,20 @@ void CExercise_04::Calc_Gauss_Matrix(double *matrix)
 			xptrLeft--;
 			xptrRight++;
 		}
+	}
+}
+
+//---------------------------------------------------------
+// Calculate the square matrix.
+//---------------------------------------------------------
+void CExercise_04::Calc_Sqr_Matrix(double *matrix)
+{
+	int max = 4 * radius * radius + 4 * radius + 1;
+	double val = 1 / (max);
+
+	for (int i = 0; i < max; i++)
+	{
+		*matrix = val;
+		matrix++;
 	}
 }
