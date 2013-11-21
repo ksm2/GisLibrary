@@ -63,17 +63,30 @@ CExercise_04::CExercise_04(void)
 //---------------------------------------------------------
 bool CExercise_04::On_Execute(void)
 {
-	CSG_Grid *grid, *result;
+	CSG_Grid *grid, *result, *accumulation;
 
 	grid = Parameters("GRID")->asGrid();
 	result = Parameters("RESULT")->asGrid();
+	accumulation = Parameters("ACC")->asGrid();
 
-	for (int y = 0; y < grid->Get_NY() && Set_Progress(y); y++)
+	accumulation->Assign(1.0);
+
+	for (int i = 0; i < Get_NCells() && Set_Progress_NCells(i); i++)
 	{
-		for (int x = 0; x < grid->Get_NX(); x++)
+		int x, y;
+		if (grid->Get_Sorted(i, x, y))
 		{
 			int direction = Get_Flow_Direction(grid, x, y);
-			result->Set_Value(x, y, direction);
+
+			if (direction > -1)
+			{
+				result->Set_Value(x, y, direction);
+
+				int destX = accumulation->Get_System().Get_xTo(direction, x);
+				int destY = accumulation->Get_System().Get_yTo(direction, y);
+
+				accumulation->Set_Value(destX, destY, accumulation->asDouble(destX, destY) + accumulation->asDouble(x, y));
+			}
 		}
 	}
 
@@ -138,4 +151,5 @@ void CExercise_04::Init_Parameters(void)
 {
 	Parameters.Add_Grid(NULL, "GRID", "Grid", "...", PARAMETER_INPUT);
 	Parameters.Add_Grid(NULL, "RESULT", "Result", "...", PARAMETER_OUTPUT);
+	Parameters.Add_Grid(NULL, "ACC", "Accumulation", "...", PARAMETER_OUTPUT);
 }
