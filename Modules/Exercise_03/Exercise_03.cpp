@@ -47,6 +47,7 @@
 
 //---------------------------------------------------------
 #include "Exercise_03.h"
+#include <math.h>
 
 //---------------------------------------------------------
 // Creates the module.
@@ -68,16 +69,27 @@ bool CExercise_03::On_Execute(void)
 	result = Parameters("RESULT")->asGrid();
 
 	radius = Parameters("SIZE")->asInt();
+	CSG_Parameter_Choice *type = Parameters("TYPE")->asChoice();
+
+	// Reserve memory for the matrix
+	double *gaussMatrix = (double *) malloc(sizeof(double) * (4 * radius * radius + 4 * radius + 1));
+	if (type->asInt() == 0)
+		Calc_Sqr_Matrix(gaussMatrix);
+	else
+		Calc_Gauss_Matrix(gaussMatrix);
 
 	for (int y = 0; y < inputGrid->Get_NY() && Set_Progress(y); y++)
 	{
 		for (int x = 0; x < inputGrid->Get_NX(); x++)
 		{
-			double value = Get_Mean(x, y);
+			double value = Get_Mean(x, y, gaussMatrix);
 			result->Set_Value(x, y, value);
 		}
 	}
-	result->Set_Name("Antialiased Map");		
+	result->Set_Name("Gaussian Map");		
+
+	// Free the matrix
+	free(gaussMatrix);
 
 	return true;
 }
@@ -87,9 +99,9 @@ bool CExercise_03::On_Execute(void)
 //---------------------------------------------------------
 void CExercise_03::Init_Meta_Info(void)
 {
-	Set_Name(_TL("Nachbarschaftsrenderer"));
+	Set_Name(_TL("Weichzeichner"));
 	Set_Author("Konstantin Simon Maria Möllers (C) 2013");
-	Set_Description(_TW("My own module description. Leik a Sir."));
+	Set_Description(_TW("Calculates the gaussian map."));
 }
 
 //---------------------------------------------------------
@@ -99,40 +111,90 @@ void CExercise_03::Init_Parameters(void)
 {
 	Parameters.Add_Grid(NULL, "GRID", "Grid", "...", PARAMETER_INPUT);
 	Parameters.Add_Value(NULL, "SIZE", "Größe der Umgebung", "...", PARAMETER_TYPE_Int, 3.0);
+	Parameters.Add_Choice(NULL, "TYPE", "Art der Berechnung", "...", "Quadrat|Gauß");
 	Parameters.Add_Grid(NULL, "RESULT", "Result", "...", PARAMETER_OUTPUT);
 }
 
 //---------------------------------------------------------
 // Get the mean value around x and y.
 //---------------------------------------------------------
-double CExercise_03::Get_Mean(int x, int y)
+double CExercise_03::Get_Mean(int x, int y, double *matrix)
 {
 	double value = 0;
+	double *relMatrix = matrix;
 
 	for (int i = -radius; i < radius; i++)
-	for (int j = -radius; j < radius; j++)
 	{
-		// Get relative coordinates
-		int myX = x - j;
-		int myY = y - i;
+		for (int j = -radius; j < radius; j++)
+		{
+			// Get relative coordinates
+			int myX = x - j;
+			int myY = y - i;
 
-		// Ensure x is in grid
-		if (myX < 0)
-			myX = 0;
-		else if (myX >= inputGrid->Get_NX())
-			myX = inputGrid->Get_NX() - 1;
+			// Ensure x is in grid
+			if (myX < 0)
+				myX = 0;
+			else if (myX >= inputGrid->Get_NX())
+				myX = inputGrid->Get_NX() - 1;
 
-		// Ensure y is in grid
-		if (myY < 0)
-			myY = 0;
-		else if (myY >= inputGrid->Get_NY())
-			myY = inputGrid->Get_NY() - 1;
+			// Ensure y is in grid
+			if (myY < 0)
+				myY = 0;
+			else if (myY >= inputGrid->Get_NY())
+				myY = inputGrid->Get_NY() - 1;
 
-		// Get the value
-		value += inputGrid->asDouble(myX, myY);
+			// Get the value
+
+			double factor = *relMatrix;
+			value += factor * inputGrid->asDouble(myX, myY);
+
+			relMatrix++;
+		}
 	}
 
-	value /= radius * radius;
-
 	return value;
+}
+
+//---------------------------------------------------------
+// Calculate the gauss matrix.
+//---------------------------------------------------------
+void CExercise_03::Calc_Gauss_Matrix(double *matrix)
+{
+	double coeff = 1 / sqrt(2 * M_PI);
+	for (int x = 0; x < 2 * radius + 1; x++)
+	{
+		double *xptrLeft = matrix + (x * (2 * radius + 1)) + radius;
+		double *xptrRight = xptrLeft;
+		double xsqr = radius + 1 - x;
+		xsqr *= xsqr;
+
+		for (int y = 0; y <= radius; y++)
+		{
+			int ysqr = y * y;
+			double distancesqr = xsqr + ysqr;
+			distancesqr = distancesqr / (radius * radius) * 4;
+			double gauss = coeff * exp(-0.5 * distancesqr);
+
+			*xptrLeft = gauss;
+			*xptrRight = gauss;
+
+			xptrLeft--;
+			xptrRight++;
+		}
+	}
+}
+
+//---------------------------------------------------------
+// Calculate the square matrix.
+//---------------------------------------------------------
+void CExercise_03::Calc_Sqr_Matrix(double *matrix)
+{
+	int max = 4 * radius * radius + 4 * radius + 1;
+	double val = 1 / (max);
+
+	for (int i = 0; i < max; i++)
+	{
+		*matrix = val;
+		matrix++;
+	}
 }

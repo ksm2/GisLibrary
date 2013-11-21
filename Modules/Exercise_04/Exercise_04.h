@@ -64,14 +64,9 @@ protected:
 	virtual bool On_Execute(void);
 
 private:
-	CSG_Grid *inputGrid;
-	int radius;
-
 	void Init_Meta_Info(void);
 	void Init_Parameters(void);
-	double Get_Mean(int x, int y, double *matrix);
-	void Calc_Gauss_Matrix(double *matrix);
-	void Calc_Sqr_Matrix(double *matrix);
+	int Get_Flow_Direction(CSG_Grid *grid, int x, int y);
 };
 
 //---------------------------------------------------------

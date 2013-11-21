@@ -63,35 +63,62 @@ CExercise_04::CExercise_04(void)
 //---------------------------------------------------------
 bool CExercise_04::On_Execute(void)
 {
-	CSG_Grid *result;
+	CSG_Grid *grid, *result;
 
-	inputGrid = Parameters("GRID")->asGrid();
+	grid = Parameters("GRID")->asGrid();
 	result = Parameters("RESULT")->asGrid();
 
-	radius = Parameters("SIZE")->asInt();
-	CSG_Parameter_Choice *type = Parameters("TYPE")->asChoice();
-
-	// Reserve memory for the matrix
-	double *gaussMatrix = (double *) malloc(sizeof(double) * (4 * radius * radius + 4 * radius + 1));
-	if (type->asInt() == 0)
-		Calc_Sqr_Matrix(gaussMatrix);
-	else
-		Calc_Gauss_Matrix(gaussMatrix);
-
-	for (int y = 0; y < inputGrid->Get_NY() && Set_Progress(y); y++)
+	for (int y = 0; y < grid->Get_NY() && Set_Progress(y); y++)
 	{
-		for (int x = 0; x < inputGrid->Get_NX(); x++)
+		for (int x = 0; x < grid->Get_NX(); x++)
 		{
-			double value = Get_Mean(x, y, gaussMatrix);
-			result->Set_Value(x, y, value);
+			int direction = Get_Flow_Direction(grid, x, y);
+			result->Set_Value(x, y, direction);
 		}
 	}
-	result->Set_Name("Gaussian Map");		
 
-	// Free the matrix
-	free(gaussMatrix);
+	result->Set_Name("Flow Direction Map");
 
 	return true;
+}
+
+//---------------------------------------------------------
+// Returns the flow direction for a cell at x and y.
+//---------------------------------------------------------
+int CExercise_04::Get_Flow_Direction(CSG_Grid *grid, int x, int y)
+{
+	int result = -1;
+	double resultAngle = 0;
+	CSG_Grid_System system = grid->Get_System();
+	double myElevation = grid->asDouble(x, y);
+
+	for (int direction = 0; direction < 8; direction++)
+	{
+		int nx, ny;
+		double length, nElevation, dz, angle;
+
+		length = system.Get_Length(direction);
+
+		// Get neighbor position
+		nx = system.Get_xTo(direction, x);
+		ny = system.Get_yTo(direction, y);
+
+		if (grid->is_InGrid(nx, ny))
+		{
+			nElevation = grid->asDouble(nx, ny);
+
+			dz = myElevation - nElevation;
+			angle = atan(dz / length);
+
+			if (angle > resultAngle)
+			{
+				result = direction;
+				resultAngle = angle;
+			}
+		}
+	}
+
+	return result;
 }
 
 //---------------------------------------------------------
@@ -99,7 +126,7 @@ bool CExercise_04::On_Execute(void)
 //---------------------------------------------------------
 void CExercise_04::Init_Meta_Info(void)
 {
-	Set_Name(_TL("Weichzeichner"));
+	Set_Name(_TL("Flow Accumulation"));
 	Set_Author("Konstantin Simon Maria Möllers (C) 2013");
 	Set_Description(_TW("Calculates the gaussian map."));
 }
@@ -110,91 +137,5 @@ void CExercise_04::Init_Meta_Info(void)
 void CExercise_04::Init_Parameters(void)
 {
 	Parameters.Add_Grid(NULL, "GRID", "Grid", "...", PARAMETER_INPUT);
-	Parameters.Add_Value(NULL, "SIZE", "Größe der Umgebung", "...", PARAMETER_TYPE_Int, 3.0);
-	Parameters.Add_Choice(NULL, "TYPE", "Art der Berechnung", "...", "Quadrat|Gauß");
 	Parameters.Add_Grid(NULL, "RESULT", "Result", "...", PARAMETER_OUTPUT);
-}
-
-//---------------------------------------------------------
-// Get the mean value around x and y.
-//---------------------------------------------------------
-double CExercise_04::Get_Mean(int x, int y, double *matrix)
-{
-	double value = 0;
-	double *relMatrix = matrix;
-
-	for (int i = -radius; i < radius; i++)
-	{
-		for (int j = -radius; j < radius; j++)
-		{
-			// Get relative coordinates
-			int myX = x - j;
-			int myY = y - i;
-
-			// Ensure x is in grid
-			if (myX < 0)
-				myX = 0;
-			else if (myX >= inputGrid->Get_NX())
-				myX = inputGrid->Get_NX() - 1;
-
-			// Ensure y is in grid
-			if (myY < 0)
-				myY = 0;
-			else if (myY >= inputGrid->Get_NY())
-				myY = inputGrid->Get_NY() - 1;
-
-			// Get the value
-
-			double factor = *relMatrix;
-			value += factor * inputGrid->asDouble(myX, myY);
-
-			relMatrix++;
-		}
-	}
-
-	return value;
-}
-
-//---------------------------------------------------------
-// Calculate the gauss matrix.
-//---------------------------------------------------------
-void CExercise_04::Calc_Gauss_Matrix(double *matrix)
-{
-	double coeff = 1 / sqrt(2 * M_PI);
-	for (int x = 0; x < 2 * radius + 1; x++)
-	{
-		double *xptrLeft = matrix + (x * (2 * radius + 1)) + radius;
-		double *xptrRight = xptrLeft;
-		double xsqr = radius + 1 - x;
-		xsqr *= xsqr;
-
-		for (int y = 0; y <= radius; y++)
-		{
-			int ysqr = y * y;
-			double distancesqr = xsqr + ysqr;
-			distancesqr = distancesqr / (radius * radius) * 4;
-			double gauss = coeff * exp(-0.5 * distancesqr);
-
-			*xptrLeft = gauss;
-			*xptrRight = gauss;
-
-			xptrLeft--;
-			xptrRight++;
-		}
-	}
-}
-
-//---------------------------------------------------------
-// Calculate the square matrix.
-//---------------------------------------------------------
-void CExercise_04::Calc_Sqr_Matrix(double *matrix)
-{
-	int max = 4 * radius * radius + 4 * radius + 1;
-	double val = 1 / (max);
-
-	for (int i = 0; i < max; i++)
-	{
-		*matrix = val;
-		matrix++;
-	}
 }
