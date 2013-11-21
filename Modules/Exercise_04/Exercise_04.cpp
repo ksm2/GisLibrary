@@ -1,7 +1,3 @@
-/**********************************************************
- * Version $Id: MLB_Interface.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -9,11 +5,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       Template                        //
+//                        Möllers                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    Exercise_04.cpp                    //
 //                                                       //
 //                 Copyright (C) 2013 by                 //
 //            Konstantin Simon Maria Möllers             //
@@ -49,76 +45,136 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
-///////////////////////////////////////////////////////////
+//---------------------------------------------------------
+#include "Exercise_04.h"
+#include <math.h>
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+// Creates the module.
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-//---------------------------------------------------------
-CSG_String Get_Info(int i)
+CExercise_04::CExercise_04(void)
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Möllers Library") );
-
-	case MLB_INFO_Author:
-		return( SG_T("Konstantin Simon Maria Möllers (C) 2013") );
-
-	case MLB_INFO_Description:
-		return( _TL("Möllers's super awesome GIS Library.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Möllers") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-//---------------------------------------------------------
-#include "../Modules/Template/Template.h"
-#include "../Modules/Exercise_01/Exercise_01.h"
-#include "../Modules/Exercise_02/Exercise_02.h"
-#include "../Modules/Exercise_03/Exercise_03.h"
-#include "../Modules/Exercise_04/Exercise_04.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-//---------------------------------------------------------
-#define addModule(i, name) case i: return new name;
-CSG_Module *Create_Module(int i)
-{
-	switch (i)
-	{
-		addModule(0, CTemplate)
-		addModule(1, CExercise_01)
-		addModule(2, CExercise_02)
-		addModule(3, CExercise_03)
-		addModule(4, CExercise_04)
-
-		case 11:	return NULL;
-		default:	return MLB_INTERFACE_SKIP_MODULE;
-	}
+	this->Init_Meta_Info();
+	this->Init_Parameters();
 }
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+// Runs on module execution.
+//---------------------------------------------------------
+bool CExercise_04::On_Execute(void)
+{
+	CSG_Grid *result;
 
-	MLB_INTERFACE
+	inputGrid = Parameters("GRID")->asGrid();
+	result = Parameters("RESULT")->asGrid();
 
-//}}AFX_SAGA
+	radius = Parameters("SIZE")->asInt();
+
+	// Reserve memory for the matrix
+	double *gaussMatrix = (double *) malloc(sizeof(double) * (4 * radius * radius + 4 * radius + 1));
+	Calc_Gauss_Matrix(gaussMatrix);
+
+	for (int y = 0; y < inputGrid->Get_NY() && Set_Progress(y); y++)
+	{
+		for (int x = 0; x < inputGrid->Get_NX(); x++)
+		{
+			double value = Get_Mean(x, y, gaussMatrix);
+			result->Set_Value(x, y, value);
+		}
+	}
+	result->Set_Name("Gaussian Map");		
+
+	// Free the matrix
+	free(gaussMatrix);
+
+	return true;
+}
+
+//---------------------------------------------------------
+// Initializes meta information to this module.
+//---------------------------------------------------------
+void CExercise_04::Init_Meta_Info(void)
+{
+	Set_Name(_TL("Gaußscher Weichzeichner"));
+	Set_Author("Konstantin Simon Maria Möllers (C) 2013");
+	Set_Description(_TW("Calculates the gaussian map."));
+}
+
+//---------------------------------------------------------
+// Initializes the module parameters.
+//---------------------------------------------------------
+void CExercise_04::Init_Parameters(void)
+{
+	Parameters.Add_Grid(NULL, "GRID", "Grid", "...", PARAMETER_INPUT);
+	Parameters.Add_Value(NULL, "SIZE", "Größe der Umgebung", "...", PARAMETER_TYPE_Int, 3.0);
+	Parameters.Add_Grid(NULL, "RESULT", "Result", "...", PARAMETER_OUTPUT);
+}
+
+//---------------------------------------------------------
+// Get the mean value around x and y.
+//---------------------------------------------------------
+double CExercise_04::Get_Mean(int x, int y, double *matrix)
+{
+	double value = 0;
+	double *relMatrix = matrix;
+
+	for (int i = -radius; i < radius; i++)
+	{
+		for (int j = -radius; j < radius; j++)
+		{
+			// Get relative coordinates
+			int myX = x - j;
+			int myY = y - i;
+
+			// Ensure x is in grid
+			if (myX < 0)
+				myX = 0;
+			else if (myX >= inputGrid->Get_NX())
+				myX = inputGrid->Get_NX() - 1;
+
+			// Ensure y is in grid
+			if (myY < 0)
+				myY = 0;
+			else if (myY >= inputGrid->Get_NY())
+				myY = inputGrid->Get_NY() - 1;
+
+			// Get the value
+
+			double factor = *relMatrix;
+			value += factor * inputGrid->asDouble(myX, myY);
+
+			relMatrix++;
+		}
+	}
+
+	return value;
+}
+
+//---------------------------------------------------------
+// Calculate the gauss matrix.
+//---------------------------------------------------------
+void CExercise_04::Calc_Gauss_Matrix(double *matrix)
+{
+	double coeff = 1 / sqrt(2 * M_PI);
+	for (int x = 0; x < 2 * radius + 1; x++)
+	{
+		double *xptrLeft = matrix + (x * (2 * radius + 1)) + radius;
+		double *xptrRight = xptrLeft;
+		double xsqr = radius + 1 - x;
+		xsqr *= xsqr;
+
+		for (int y = 0; y <= radius; y++)
+		{
+			int ysqr = y * y;
+			double distancesqr = xsqr + ysqr;
+			distancesqr = distancesqr / (radius * radius) * 4;
+			double gauss = coeff * exp(-0.5 * distancesqr);
+
+			*xptrLeft = gauss;
+			*xptrRight = gauss;
+
+			xptrLeft--;
+			xptrRight++;
+		}
+	}
+}

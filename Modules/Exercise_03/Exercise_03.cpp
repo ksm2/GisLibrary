@@ -62,44 +62,23 @@ CExercise_03::CExercise_03(void)
 //---------------------------------------------------------
 bool CExercise_03::On_Execute(void)
 {
-	CSG_Grid *grid, *result;
+	CSG_Grid *result;
 
-	grid = Parameters("GRID")->asGrid();
+	inputGrid = Parameters("GRID")->asGrid();
 	result = Parameters("RESULT")->asGrid();
 
-	int size = Parameters("SIZE")->asInt();
+	radius = Parameters("SIZE")->asInt();
 
-	for (int y = 0; y < grid->Get_NY() && Set_Progress(y); y++)
-	for (int x = 0; x < grid->Get_NX(); x++)
+	for (int y = 0; y < inputGrid->Get_NY() && Set_Progress(y); y++)
 	{
-		double value = 0;
-
-		for (int i = -size; i < size; i++)
-		for (int j = -size; j < size; j++) 
+		for (int x = 0; x < inputGrid->Get_NX(); x++)
 		{
-			int myX = x - j;
-			int myY = y - i;
-
-			if (myX < 0)
-				myX = 0;
-			else if (myX >= grid->Get_NX())
-				myX = grid->Get_NX() - 1;
-
-			if (myY < 0)
-				myY = 0;
-			else if (myY >= grid->Get_NY())
-				myY = grid->Get_NY() - 1;
-		
-			value += grid->asDouble(myX, myY);
+			double value = Get_Mean(x, y);
+			result->Set_Value(x, y, value);
 		}
-
-		value /= size * size;
-
-		result->Set_Value(x, y, value);
 	}
+	result->Set_Name("Antialiased Map");		
 
-	result->Set_Name("Antialiased Map");
-			
 	return true;
 }
 
@@ -121,4 +100,39 @@ void CExercise_03::Init_Parameters(void)
 	Parameters.Add_Grid(NULL, "GRID", "Grid", "...", PARAMETER_INPUT);
 	Parameters.Add_Value(NULL, "SIZE", "Größe der Umgebung", "...", PARAMETER_TYPE_Int, 3.0);
 	Parameters.Add_Grid(NULL, "RESULT", "Result", "...", PARAMETER_OUTPUT);
+}
+
+//---------------------------------------------------------
+// Get the mean value around x and y.
+//---------------------------------------------------------
+double CExercise_03::Get_Mean(int x, int y)
+{
+	double value = 0;
+
+	for (int i = -radius; i < radius; i++)
+	for (int j = -radius; j < radius; j++)
+	{
+		// Get relative coordinates
+		int myX = x - j;
+		int myY = y - i;
+
+		// Ensure x is in grid
+		if (myX < 0)
+			myX = 0;
+		else if (myX >= inputGrid->Get_NX())
+			myX = inputGrid->Get_NX() - 1;
+
+		// Ensure y is in grid
+		if (myY < 0)
+			myY = 0;
+		else if (myY >= inputGrid->Get_NY())
+			myY = inputGrid->Get_NY() - 1;
+
+		// Get the value
+		value += inputGrid->asDouble(myX, myY);
+	}
+
+	value /= radius * radius;
+
+	return value;
 }
