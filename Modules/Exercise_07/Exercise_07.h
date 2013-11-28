@@ -1,7 +1,3 @@
-/**********************************************************
- * Version $Id: MLB_Interface.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -9,11 +5,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       Template                        //
+//                        Möllers                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                     Exercise_07.h                     //
 //                                                       //
 //                 Copyright (C) 2013 by                 //
 //            Konstantin Simon Maria Möllers             //
@@ -49,82 +45,34 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
-///////////////////////////////////////////////////////////
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Exercise_07_H
+#define HEADER_INCLUDED__Exercise_07_H
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-//---------------------------------------------------------
-#include "MLB_Interface.h"
-
+#include "../../Library/MLB_Interface.h"
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// The Template Module class.
 //---------------------------------------------------------
-CSG_String Get_Info(int i)
+class CExercise_07 : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Möllers Gis Library") );
+public:
+	CExercise_07(void);
 
-	case MLB_INFO_Author:
-		return( SG_T("Konstantin Simon Maria Möllers (C) 2013") );
+protected:
+	virtual bool On_Execute(void);
 
-	case MLB_INFO_Description:
-		return( _TL("Möllers's super awesome GIS Library.") );
+private:
+	CSG_Grid *inputGrid;
+	int radius;
 
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Möllers Gis Library") );
-	}
-}
-
+	void Init_Meta_Info(void);
+	void Init_Parameters(void);
+	double Get_Mean(int x, int y, double *matrix);
+	void Calc_Gauss_Matrix(double *matrix);
+	void Calc_Sqr_Matrix(double *matrix);
+};
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
-//---------------------------------------------------------
-#include "../Modules/Template/Template.h"
-#include "../Modules/Exercise_01/Exercise_01.h"
-#include "../Modules/Exercise_02/Exercise_02.h"
-#include "../Modules/Exercise_03/Exercise_03.h"
-#include "../Modules/Exercise_04/Exercise_04.h"
-#include "../Modules/Exercise_06/Exercise_06.h"
-#include "../Modules/Exercise_07/Exercise_07.h"
-#include "../Modules/Mandelbrot/Mandelbrot.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-//---------------------------------------------------------
-#define addModule(i, name) case i: return new name;
-CSG_Module *Create_Module(int i)
-{
-	switch (i)
-	{
-		addModule(0, CTemplate)
-		addModule(1, CExercise_01)
-		addModule(2, CExercise_02)
-		addModule(3, CExercise_03)
-		addModule(4, CExercise_04)
-		addModule(5, CMandelbrot)
-		addModule(6, CExercise_06)
-		addModule(7, CExercise_07)
-
-		case 11:	return NULL;
-		default:	return MLB_INTERFACE_SKIP_MODULE;
-	}
-}
-
-//---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Exercise_07_H
