@@ -311,6 +311,7 @@
     <ClCompile Include="Modules\Exercise_02\Exercise_02.cpp" />
     <ClCompile Include="Modules\Exercise_03\Exercise_03.cpp" />
     <ClCompile Include="Modules\Exercise_04\Exercise_04.cpp" />
+    <ClCompile Include="Modules\Exercise_06\Exercise_06.cpp" />
     <ClCompile Include="Modules\Mandelbrot\Mandelbrot.cpp" />
     <ClCompile Include="Modules\Template\Template.cpp" />
   </ItemGroup>
@@ -337,6 +338,7 @@
     <ClInclude Include="Modules\Exercise_02\Exercise_02.h" />
     <ClInclude Include="Modules\Exercise_03\Exercise_03.h" />
     <ClInclude Include="Modules\Exercise_04\Exercise_04.h" />
+    <ClInclude Include="Modules\Exercise_06\Exercise_06.h" />
     <ClInclude Include="Modules\Mandelbrot\Mandelbrot.h" />
     <ClInclude Include="Modules\Template\Template.h" />
   </ItemGroup>

@@ -35,6 +35,9 @@
     <ClCompile Include="Modules\Mandelbrot\Mandelbrot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Modules\Exercise_06\Exercise_06.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -107,6 +110,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Modules\Mandelbrot\Mandelbrot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\Exercise_06\Exercise_06.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

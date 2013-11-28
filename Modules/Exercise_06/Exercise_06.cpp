@@ -1,7 +1,3 @@
-/**********************************************************
- * Version $Id: MLB_Interface.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -9,11 +5,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       Template                        //
+//                        Möllers                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    Exercise_06.cpp                    //
 //                                                       //
 //                 Copyright (C) 2013 by                 //
 //            Konstantin Simon Maria Möllers             //
@@ -49,80 +45,135 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-//---------------------------------------------------------
-#include "MLB_Interface.h"
-
+#include "Exercise_06.h"
+#include <math.h>
+#include <time.h>
+#include <windows.h>
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// Creates the module.
 //---------------------------------------------------------
-CSG_String Get_Info(int i)
+CExercise_06::CExercise_06(void)
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Möllers Gis Library") );
-
-	case MLB_INFO_Author:
-		return( SG_T("Konstantin Simon Maria Möllers (C) 2013") );
-
-	case MLB_INFO_Description:
-		return( _TL("Möllers's super awesome GIS Library.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Möllers Gis Library") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-//---------------------------------------------------------
-#include "../Modules/Template/Template.h"
-#include "../Modules/Exercise_01/Exercise_01.h"
-#include "../Modules/Exercise_02/Exercise_02.h"
-#include "../Modules/Exercise_03/Exercise_03.h"
-#include "../Modules/Exercise_04/Exercise_04.h"
-#include "../Modules/Exercise_06/Exercise_06.h"
-#include "../Modules/Mandelbrot/Mandelbrot.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-//---------------------------------------------------------
-#define addModule(i, name) case i: return new name;
-CSG_Module *Create_Module(int i)
-{
-	switch (i)
-	{
-		addModule(0, CTemplate)
-		addModule(1, CExercise_01)
-		addModule(2, CExercise_02)
-		addModule(3, CExercise_03)
-		addModule(4, CExercise_04)
-		addModule(5, CMandelbrot)
-		addModule(6, CExercise_06)
-
-		case 11:	return NULL;
-		default:	return MLB_INTERFACE_SKIP_MODULE;
-	}
+	this->Init_Meta_Info();
+	this->Init_Parameters();
 }
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+// Runs on module execution.
+//---------------------------------------------------------
+bool CExercise_06::On_Execute(void)
+{
+	CSG_Grid *grid;
 
-	MLB_INTERFACE
+	int nx = Parameters("NX")->asInt();
+	int ny = Parameters("NY")->asInt();
+	int sleep = Parameters("SLEEP")->asInt();
 
-//}}AFX_SAGA
+	grid = Create_Random_Grid(nx, ny);
+
+	while (Process_Get_Okay())
+	{
+		//Sleep(sleep);
+		
+		CSG_Grid *newGrid = new CSG_Grid(grid);
+
+		#pragma omp parallel for
+		for (int x = 0; x < nx; x++)
+		{
+			for (int y = 0; y < ny; y++)
+			{
+				int newValue = Find_New_Value_For_Cell(grid, x, y, nx, ny);
+				newGrid->Set_Value(x, y, newValue);
+			}
+		}
+
+		*grid = *newGrid;
+		DataObject_Update(grid, 1);
+	}
+
+	return true;
+}
+
+//---------------------------------------------------------
+// Creates a random grid for the game of life.
+//---------------------------------------------------------
+int CExercise_06::Find_New_Value_For_Cell(CSG_Grid *grid, int x, int y, int nx, int ny)
+{
+	int neighbors = 0;
+	CSG_Grid_System system = grid->Get_System();
+	
+	for (int direction = 0; direction < 8; direction++)
+	{
+		int myx = (system.Get_xTo(direction, x) + nx) % nx;
+		int myy = (system.Get_yTo(direction, y) + ny) % ny;
+
+		neighbors += grid->asInt(myx, myy) - 1;
+	}
+
+	return Get_Game_Of_Life_Rule(grid->asInt(x, y) - 1, neighbors);
+}
+
+//---------------------------------------------------------
+// Applies Conways Rule for the game of life.
+//---------------------------------------------------------
+int CExercise_06::Get_Game_Of_Life_Rule(bool isAlive, int neighbors)
+{
+	if (isAlive)
+	{
+		if (neighbors < 2 || neighbors > 3)
+			return 1;
+	}
+	else
+	{
+		if (neighbors == 3)
+			return 2;
+	}
+	return isAlive + 1;
+}
+
+//---------------------------------------------------------
+// Creates a random grid for the game of life.
+//---------------------------------------------------------
+CSG_Grid *CExercise_06::Create_Random_Grid(int nx, int ny)
+{
+	CSG_Grid *lifeGrid = SG_Create_Grid(SG_DATATYPE_Byte, nx, ny);
+	lifeGrid->Set_Name("Life");
+
+	DataObject_Add(lifeGrid);
+	DataObject_Set_Colors(lifeGrid, CSG_Colors(2, SG_COLORS_YELLOW_BLUE, true));
+
+	srand(time(NULL));
+
+	for (int x = 0; x < nx; x++)
+	{
+		for (int y = 0; y < ny; y++)
+		{
+			int random = rand() % 2 + 1;
+			lifeGrid->Set_Value(x, y, random);
+		}
+	}
+
+	return lifeGrid;
+}
+
+//---------------------------------------------------------
+// Initializes meta information to this module.
+//---------------------------------------------------------
+void CExercise_06::Init_Meta_Info(void)
+{
+	Set_Name(_TL("Game of Life"));
+	Set_Author("Konstantin Simon Maria Möllers (C) 2013");
+	Set_Description(_TW("Calculates the game of life."));
+}
+
+//---------------------------------------------------------
+// Initializes the module parameters.
+//---------------------------------------------------------
+void CExercise_06::Init_Parameters(void)
+{
+	Parameters.Add_Value(NULL, "NX", "Width", "Game of life width", PARAMETER_TYPE_Int, 100, 10);
+	Parameters.Add_Value(NULL, "NY", "Height", "Game of life height", PARAMETER_TYPE_Int, 100, 10);
+	Parameters.Add_Value(NULL, "SLEEP", "Sleep", "Time between life cycles", PARAMETER_TYPE_Int, 100, 10);
+}
